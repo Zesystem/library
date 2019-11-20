@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mbyte.easy.book.mapper.BookMapper">
+  <resultMap id="BaseResultMap" type="com.mbyte.easy.book.entity.Book">
+      <id column="id" jdbcType="BIGINT" property="id" />
+      <id column="book_number" jdbcType="INTEGER" property="bookNumber" />
+      <id column="name" jdbcType="VARCHAR" property="name" />
+      <id column="publish_date" jdbcType="TIMESTAMP" property="publishDate" />
+      <id column="publish_home" jdbcType="INTEGER" property="publishHome" />
+      <id column="storage_location" jdbcType="INTEGER" property="storageLocation" />
+      <id column="total_number" jdbcType="INTEGER" property="totalNumber" />
+      <id column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+      <id column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+
+  </resultMap>
+  <sql id="Base_Column_List">
+              id,
+      book_number, name, publish_date, publish_home, storage_location, total_number, create_time, update_time
+  </sql>
+
+
+    <select id="listPage" resultMap="BaseResultMap">
+        select b.*,tp.name as publishName,tl.name as storageName
+        from t_book as b
+        left join t_publish as tp on tp.id = b.publish_home
+        left join t_location as tl on tl.id = b.storage_location
+        <if test="book.publishName!= null">
+            <bind name="publishName" value="'%'+book.publishName+'%'"/>
+            inner join t_publish as p
+            on p.id = b.publish_home
+            and p.name like #{publishName,jdbcType=BIGINT}
+        </if>
+        <if test="book.storageName!= null">
+            <bind name="storageName" value="'%'+book.storageName+'%'"/>
+            inner join t_location as l
+            on l.id = b.storage_location
+            and l.name like #{storageName,jdbcType=BIGINT}
+        </if>
+        where 1 = 1
+        <if test="book.beginTime != null">
+            and b.publish_date between #{book.beginTime,jdbcType=TIMESTAMP} and #{book.endTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="book.bookNumber!=null">
+            and b.book_number = #{book.bookNumber,jdbcType=INTEGER}
+        </if>
+        <if test="book.name!=null">
+            <bind name="name" value="'%'+book.name+'%'"/>
+            and b.name like #{name}
+        </if>
+
+
+        order by b.create_time desc
+    </select>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select * from t_book where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <insert id="insertBook">
+        insert into t_book
+        (book_number,name,publish_date,publish_home,storage_location,total_number,create_time,update_time)
+        values (
+            #{book.bookNumber,jdbcType=INTEGER},
+            #{book.name,jdbcType=VARCHAR},
+            #{book.publishDate,jdbcType=TIMESTAMP},
+            #{book.publishHome,jdbcType=BIGINT},
+            #{book.storageLocation,jdbcType=BIGINT},
+            #{book.totalNumber,jdbcType=INTEGER},
+            #{book.createTime,jdbcType=TIMESTAMP},
+            #{book.updateTime,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="updateBookById">
+        update t_book
+        <set>
+            <if test="book.bookNumber!=null">
+                book_number = #{book.bookNumber,jdbcType=INTEGER},
+            </if>
+            <if test="book.name!=null">
+                name = #{book.name,jdbcType=VARCHAR},
+            </if>
+            <if test="book.publishDate!=null">
+                publish_date = #{book.publishDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="book.publishHome!=null">
+                publish_home = #{book.publishHome,jdbcType=BIGINT},
+            </if>
+            <if test="book.storageLocation!=null">
+                storage_location = #{book.storageLocation,jdbcType=BIGINT},
+            </if>
+            <if test="book.totalNumber!=null">
+                total_number = #{book.totalNumber,jdbcType=INTEGER},
+            </if>
+
+            <if test="book.createTime!=null">
+                create_time = #{book.createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="book.updateTime!=null">
+                update_time = #{book.updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{book.id,jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteBookById">
+        delete from t_book where id = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteBookAllByIds">
+        delete from t_book
+        where id in
+        <foreach collection="ids" item="item" open="(" close=")" index="index" separator="," >
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="selectAllLocation" resultType="com.mbyte.easy.localtion.entity.Location">
+        select * from t_location
+    </select>
+
+    <select id="selectAllPublish" resultType="com.mbyte.easy.publish.entity.Publish">
+        select * from t_publish
+    </select>
+
+    <select id="selectDetail" resultType="com.mbyte.easy.book.entity.Book">
+        select b.*,p.name as publishName ,l.name as storageName
+        from t_book as b
+        left join t_publish as p on p.id = b.publish_home
+        left join t_location as l on l.id = b.storage_location
+        where b.id = #{bookId,jdbcType=BIGINT}
+    </select>
+</mapper>

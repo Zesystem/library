@@ -1,0 +1,165 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="_meta :: header">
+    <title>编辑</title>
+</head>
+<body>
+<article class="page-container">
+    <form class="form form-horizontal layui-form" id="form-book-edit" action="#"
+          th:action="@{/book/book/add}" th:object="${book}" enctype="multipart/form-data">
+
+        <div class="row cl">
+            <label class="form-label col-xs-2 col-sm-2"><span
+                    class="c-red">*</span>图书编号：</label>
+            <div class="formControls col-xs-10 col-sm-10">
+                <input type="input-text" class="input-text"  name="bookNumber"  placeholder="修改图书编号" id="bookNumber"/>
+
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-2 col-sm-2"><span
+                    class="c-red">*</span>图书名称：</label>
+            <div class="formControls col-xs-10 col-sm-10">
+                <input type="input-text" class="input-text"  name="name"  placeholder="修改图书名称" id="name"/>
+
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-2 col-sm-2"><span
+                    class="c-red">*</span>出版日期：</label>
+            <div class="formControls col-xs-10 col-sm-10">
+                <input type="input-text" class="input-text timeSpace" readonly="readonly" autocomplete="off" name="publishDate" placeholder="请选择出版日期"/>
+            </div>
+        </div>
+
+
+        <div class="row cl">
+            <label class="form-label col-xs-2 col-sm-2"><span
+                    class="c-red">*</span>出版社：</label>
+            <div class="formControls col-xs-10 col-sm-10">
+                <select name="publishHome" lay-filter="aihao">
+                    <option th:each="publish:${publishList}" th:value="${publish.id}" th:text="${publish.name}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row cl">
+            <label class="form-label col-xs-2 col-sm-2"><span
+                    class="c-red">*</span>存放位置：</label>
+            <div class="formControls col-xs-10 col-sm-10">
+                <select name="storageLocation" lay-filter="aihao">
+                    <option th:each="location:${locationList}" th:value="${location.id}" th:text="${location.name}"></option>
+                </select>
+            </div>
+        </div>
+
+
+        <div class="row cl">
+            <label class="form-label col-xs-2 col-sm-2"><span
+                    class="c-red">*</span>图书总量：</label>
+            <div class="formControls col-xs-10 col-sm-10">
+                <input type="input-text" class="input-text"  name="totalNumber"  placeholder="修改图书总量" id="totalNumber"/>
+
+            </div>
+        </div>
+        <div class="row cl">
+            <div class="col-xs-3 col-sm-3 col-xs-offset-4 col-sm-offset-3">
+                <input class="btn btn-primary radius" id="subbtn" type="submit" value="&nbsp;&nbsp;提交&nbsp;&nbsp;"/>
+                <input class="btn radius" id="reset" type="reset" value="&nbsp;&nbsp;重置&nbsp;&nbsp;"/>
+            </div>
+        </div>
+    </form>
+</article>
+<!--_footer 作为公共模版分离出去-->
+<div th:replace="_footer :: footerjs"></div>
+<div th:replace="_ueditor :: ueditor"></div>
+<!--/_footer 作为公共模版分离出去-->
+<!--请在下方写此页面业务相关的脚本-->
+
+<link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+<script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+<script>
+    //Demo
+    layui.use(['form', 'layer','laydate'],function() {
+        $ = layui.jquery;
+        var form = layui.form,
+            laydate = layui.laydate,
+            layer = layui.layer;
+        lay('.timeSpace').each(function(){
+            laydate.render({
+                elem: this
+                ,trigger: 'click'
+                ,type: 'datetime'
+            });
+        });
+
+    });
+    $(function () {
+        $("#form-book-edit").validate({
+            rules: {
+                bookNumber:
+                    {
+                        required: true,
+                    },
+                name:
+                    {
+                        required: true,
+                    },
+                publishDate:
+                    {
+                        required: true,
+                    },
+                publishHome:
+                    {
+                        required: true,
+                    },
+                storageLocation:
+                    {
+                        required: true,
+                    },
+                totalNumber:
+                    {
+                        required: true,
+                    },
+            },
+            onkeyup:false,
+            debug
+                :
+                true,
+            success
+                :
+                "valid",
+            submitHandler
+                :
+
+                function (form) {
+                    $(form).ajaxSubmit({
+                        type: 'POST',
+                        url: "/book/book/add",
+                        success: function (data) {
+                            if (data.code == "1") {
+                                    var index = parent.layer.getFrameIndex(window.name);
+                                    parent.location.reload();
+                                    parent.layer.close(index);
+                            }
+                        },
+                        error: function () {
+                        }
+                    });
+                }
+        })
+        ;
+    });
+
+    lay('.timeSpace').each(function(){
+        laydate.render({
+            elem: this
+            ,trigger: 'click'
+            ,type: 'datetime'
+        });
+    });
+
+</script>
+<!--/请在上方写此页面业务相关的脚本-->
+</body>
+</html>

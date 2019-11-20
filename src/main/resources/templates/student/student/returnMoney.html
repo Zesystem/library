@@ -1,0 +1,152 @@
+<!DOCTYPE HTML>
+<html  xmlns:th="http://www.thymeleaf.org">
+<head th:include="_meta :: header">
+<title>添加</title>
+</head>
+<body>
+<article class="page-container">
+	<form class="layui-form form form-horizontal"  id="form-student-add" action="#" th:action="@{/student/student/updateArrearsNum}">
+
+		<div class="layui-form-item">
+			<label class="layui-form-label"><span class="x-red">*</span>借书证号：</label>
+			<div class="layui-input-inline">
+				<input type="layui-input" id="certificateNumber" class="layui-input" name="certificateNumber"  placeholder="借书证号" />
+			</div>
+		</div>
+
+
+		<div class="layui-form-item">
+			<label class="layui-form-label"><span class="x-red">*</span>欠费：</label>
+			<div class="layui-input-inline">
+				<input type="layui-input" class="layui-input" readonly="readonly" name="arrearsNum"  placeholder="图书编号" id="arrearsNum"/>
+			</div>
+		</div>
+
+		<div class="layui-form-item">
+			<label class="layui-form-label"> </label>
+			<button  class="layui-btn" id="subbtn" type="submit" disabled="true"> 交纳 </button>
+			<button  class="layui-btn" id="reset" type="reset" > 重置 </button>
+		</div>
+
+	</form>
+</article>
+
+<!--_footer 作为公共模版分离出去-->
+<div th:replace="_footer :: footerjs"></div>
+<!--<div th:replace="_ueditor :: ueditor"></div>-->
+
+<link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+<script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+
+ <!--/_footer 作为公共模版分离出去-->
+<!--请在下方写此页面业务相关的脚本-->
+
+<script>
+	layui.use(['form', 'layer','laydate'],function() {
+		$ = layui.jquery;
+		var form = layui.form,
+				laydate = layui.laydate,
+				layer = layui.layer;
+		lay('.timeSpace').each(function(){
+			laydate.render({
+				elem: this
+				,trigger: 'click'
+				,type: 'datetime'
+			});
+		});
+
+	});
+
+	$("#certificateNumber").on("change",function () {
+		console.log("触发");
+		var  certificateNumber = $(this).val();
+		$.ajax({
+			type: "GET",
+			url: "/student/student/returnMoney",
+			data: {
+				certificateNumber:certificateNumber
+			},
+			dataType: "json",
+			success: function(data){
+				console.log(data);
+				if(data.code == 0){
+					//查询失败
+					$("#arrearsNum").val("输入的卡号不存在");
+					$("#subbtn").attr('disabled',true);
+				}else if(data.code == 1){
+					$("#arrearsNum").val(data.data);
+					$("#subbtn").attr('disabled',false);
+
+
+				}else if(data.code == 2){
+					$("#arrearsNum").val(data.msg);
+					$("#subbtn").attr('disabled',true);
+
+				}
+			},
+			error:function(){
+			}
+		});
+	})
+
+
+ $(function(){
+	$("#form-student-add").validate({
+		rules:{
+            name:{
+                required: true,
+			},
+            department:{
+                required: true,
+			},
+            professtion:{
+                required: true,
+			},
+            certificateNumber:{
+                required: true,
+			},
+            maxBookNum:{
+                required: true,
+			},
+            arrearsNum:{
+                required: true,
+			},
+            createTime:{
+                required: true,
+			},
+            updateTime:{
+                required: true,
+			},
+		},
+		onkeyup:false,
+		debug: true,
+		success:"valid",
+		submitHandler:function(form){
+				$(form).ajaxSubmit({
+				type: 'POST',
+				url: "/student/student/updateArrearsNum" ,
+				success: function(data){
+							var index = parent.layer.getFrameIndex(window.name);
+							parent.location.reload();
+							parent.layer.close(index);
+				},
+                error: function(){
+					var index = parent.layer.getFrameIndex(window.name);
+					parent.location.reload();
+					parent.layer.close(index);
+				}
+			});
+		}
+	});
+});
+        lay('.timeSpace').each(function(){
+            laydate.render({
+                elem: this
+                ,trigger: 'click'
+                ,type: 'datetime'
+            });
+        });
+</script>
+<!--/请在上方写此页面业务相关的脚本-->
+</body>
+</html>

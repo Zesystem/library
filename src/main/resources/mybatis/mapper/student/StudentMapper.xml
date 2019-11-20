@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mbyte.easy.student.mapper.StudentMapper">
+  <resultMap id="BaseResultMap" type="com.mbyte.easy.student.entity.Student">
+      <id column="id" jdbcType="BIGINT" property="id" />
+      <id column="name" jdbcType="VARCHAR" property="name" />
+      <id column="department" jdbcType="VARCHAR" property="department" />
+      <id column="professtion" jdbcType="VARCHAR" property="professtion" />
+      <id column="certificate_number" jdbcType="VARCHAR" property="certificateNumber" />
+      <id column="max_book_num" jdbcType="INTEGER" property="maxBookNum" />
+      <id column="arrears_num" jdbcType="INTEGER" property="arrearsNum" />
+      <id column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+      <id column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+
+  </resultMap>
+  <sql id="Base_Column_List">
+              id,
+      name, department, professtion, certificate_number, max_book_num, arrears_num, create_time, update_time
+  </sql>
+
+  <select id="listPage" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List" />
+        from t_student
+        where 1 = 1
+        <if test="student.name!=null">
+            <bind name="name" value="'%' + student.name+ '%'" />
+            and name like #{name,jdbcType=VARCHAR}
+        </if>
+        <if test="student.department!=null">
+            <bind name="department" value="'%' + student.department+ '%'" />
+            and department like #{department,jdbcType=VARCHAR}
+        </if>
+        <if test="student.professtion!=null">
+            <bind name="professtion" value="'%' + student.professtion+ '%'" />
+            and  professtion like #{professtion,jdbcType=VARCHAR}
+        </if>
+        <if test="student.professtion!=null">
+            <bind name="professtion" value="'%' + student.professtion+ '%'" />
+            and professtion like #{professtion,jdbcType=VARCHAR}
+        </if>
+        <if test="student.certificateNumber!=null">
+            <bind name="certificateNumber" value="'%' + student.certificateNumber+ '%'" />
+            and certificate_number like #{certificateNumber,jdbcType=VARCHAR}
+        </if>
+        <if test="student.arrearsNum!=null">
+            <bind name="arrearsNum" value="'%' + student.arrearsNum+ '%'" />
+            and arrears_num = #{arrearsNum,jdbcType=INTEGER}
+        </if>
+        order by create_time desc
+  </select>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select * from t_student where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <insert id="insertStudent">
+        insert into t_student
+        (name,department,professtion,certificate_number,max_book_num,arrears_num,create_time,update_time)
+        values (
+            #{student.name,jdbcType=VARCHAR},
+            #{student.department,jdbcType=VARCHAR},
+            #{student.professtion,jdbcType=VARCHAR},
+            #{student.certificateNumber,jdbcType=VARCHAR},
+            #{student.maxBookNum,jdbcType=INTEGER},
+            #{student.arrearsNum,jdbcType=INTEGER},
+            #{student.createTime,jdbcType=TIMESTAMP},
+            #{student.updateTime,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="updateStudentById">
+        update t_student
+        <set>
+            <if test="student.name!=null">
+                name = #{student.name,jdbcType=VARCHAR},
+            </if>
+            <if test="student.department!=null">
+                department = #{student.department,jdbcType=VARCHAR},
+            </if>
+            <if test="student.professtion!=null">
+                professtion = #{student.professtion,jdbcType=VARCHAR},
+            </if>
+            <if test="student.certificateNumber!=null">
+                certificate_number = #{student.certificateNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="student.maxBookNum!=null">
+                max_book_num = #{student.maxBookNum,jdbcType=INTEGER},
+            </if>
+            <if test="student.arrearsNum!=null">
+                arrears_num = #{student.arrearsNum,jdbcType=INTEGER},
+            </if>
+
+            <if test="student.createTime!=null">
+                create_time = #{student.createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="student.updateTime!=null">
+                update_time = #{student.updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{student.id,jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteStudentById">
+        delete from t_student where id = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteStudentAllByIds">
+        delete from t_student
+        where id in
+        <foreach collection="ids" item="item" open="(" close=")" index="index" separator="," >
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="selectAllBook" resultType="com.mbyte.easy.book.entity.Book">
+        select * from t_book order by  total_number desc
+    </select>
+
+    <insert id="insertModdle">
+        insert into t_book_student(book_id,student_id,create_time)
+        values (#{bookId,jdbcType=BIGINT},#{stuId,jdbcType=BIGINT},#{createTime,jdbcType=TIMESTAMP})
+    </insert>
+
+    <select id="selectModdleId" resultType="java.lang.Long">
+        select id
+        from t_book_student
+        where book_id = #{bookId,jdbcType=BIGINT}
+        and student_id = #{stuId,jdbcType=BIGINT}
+        limit 0,1
+    </select>
+
+    <delete id="deleteModdleById">
+        delete from t_book_student where id = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <select id="selectStuBook" resultType="com.mbyte.easy.book.entity.Book">
+        select b.*,tp.name as publishName,tl.name as storageName
+        from t_book as b
+        left join t_publish as tp on tp.id = b.publish_home
+        left join t_location as tl on tl.id = b.storage_location
+
+        inner join t_book_student as bs on bs.book_id = b.id
+        inner join t_student as s on bs.student_id = s.id
+        and s.id = #{stuId,jdbcType=BIGINT}
+    </select>
+
+    <select id="selectMiddle" resultType="java.lang.Integer">
+        select count(*)
+        from t_book_student
+        where student_id = #{studentId,jdbcType=BIGINT}
+        and create_time &lt;= #{returnTime}
+    </select>
+
+</mapper>

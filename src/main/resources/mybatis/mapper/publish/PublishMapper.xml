@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mbyte.easy.publish.mapper.PublishMapper">
+  <resultMap id="BaseResultMap" type="com.mbyte.easy.publish.entity.Publish">
+      <id column="id" jdbcType="BIGINT" property="id" />
+      <id column="name" jdbcType="VARCHAR" property="name" />
+      <id column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+      <id column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+
+  </resultMap>
+  <sql id="Base_Column_List">
+              id,
+      name, create_time, update_time
+  </sql>
+
+    <select id="listPage" resultType="com.mbyte.easy.publish.entity.Publish">
+        select <include refid="Base_Column_List"/>
+        from t_publish
+        where 1 = 1
+        <if test="publish.name!=null">
+            <bind name="name" value="'%' + publish.name+ '%'" />
+            and name like #{name,jdbcType=VARCHAR}
+        </if>
+        order by create_time  desc
+    </select>
+
+ <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_publish
+       where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <delete id="deletePublicById" >
+    delete from  t_publish
+       where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+    <delete id="deletePublicAllByIds">
+        delete from t_publish
+        where id in
+        <foreach collection="ids" item="item" open="(" close=")" index="index" separator="," >
+            #{item}
+        </foreach>
+    </delete>
+  <insert id="insertPublic">
+    insert into t_publish (name, create_time, update_time)
+    values (
+         #{publish.name,jdbcType=VARCHAR},
+         #{publish.createTime,jdbcType=TIMESTAMP},
+         #{publish.updateTime,jdbcType=TIMESTAMP}
+    )
+  </insert>
+
+  <update id="updatePublicById">
+    update t_publish
+    <set>
+       <if test="publish.name != null">
+         name = #{publish.name,jdbcType=VARCHAR},
+      </if>
+       <if test="publish.createTime != null">
+         create_time = #{publish.createTime,jdbcType=TIMESTAMP},
+      </if>
+       <if test="publish.updateTime != null">
+         update_time = #{publish.updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+       where id = #{publish.id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,128 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head th:include="_meta :: header">
+    <title>列表</title>
+</head>
+
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span>图书表管理<span
+            class="c-gray en">&gt;</span>图书表列表<a class="btn btn-success radius r"
+                                                style="line-height:1.6em;margin-top:3px"
+                                                href="javascript:location.replace(location.href);" title="刷新"><i
+                class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="page-container">
+    <form action="#" th:action="@{/book/book}" method="post">
+        <div class="layui-body">
+            <!-- 内容主体区域 -->
+            <fieldset class="layui-elem-field">
+                <legend>图书表列表</legend>
+                <div class="layui-field-box">
+
+                    <hr style="margin: 0">
+                    <div class="cl pd-5 bg-1 bk-gray">
+						<span class="l">
+						<a href="javascript:;"
+                           onclick="deleteAll('/book/book/deleteAll')"
+                           class="layui-btn  layui-btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a>
+						<a href="javascript:;"
+                           onclick="layer_show('添加','/book/book/addBefore',900,500)"
+                           class="layui-btn  layui-btn-normal radius"><i class="Hui-iconfont">&#xe600;</i> 添加</a>
+                        <a href="javascript:;" style="background-color: #6FC188;"
+                           onclick="layer_show('申请借书','/student/student/borrowBookBefore',900,500)"
+                           class="layui-btn  layui-btn-normal radius"><i class="Hui-iconfont">&#xe698;</i> 申请借书</a>
+                        <a href="javascript:;" style="background-color: #ab009d;"
+                           onclick="layer_show('申请还书','/student/student/returnBookBefore',900,500)"
+                           class="layui-btn  layui-btn-normal radius"><i class="Hui-iconfont">&#xe641;</i> 申请还书</a>
+                         <a href="javascript:;" style="background-color: #5b5f80;"
+                            onclick="layer_show('交纳欠费','/student/student/returnMaoneyBefore',900,500)"
+                            class="layui-btn  layui-btn-normal radius"><i class="Hui-iconfont">&#xe661;</i> 交纳欠费</a>
+						</span>
+                        <span class="r wei-height">共有数据：<strong th:text="${pageInfo.total}"></strong> 条</span>
+                    </div>
+                    <hr>
+
+                    <div class="cl pd-5 bg-1 bk-gray ">
+                        <div class="searchByField">
+                                         <input type="input-text" class="input-text" th:value="${searchInfo.bookNumber}" name="bookNumber" placeholder="搜索图书编号" id="bookNumber"/>
+                                         <input type="input-text" class="input-text" th:value="${searchInfo.name}" name="name" placeholder="搜索图书名称" id="name"/>
+                                         <input type="input-text" placeholder="搜索出版日期" name="publishDateSpace" th:value="${publishDateSpace}" class="input-text  timeSpace"/>
+                                         <input type="input-text" class="input-text" th:value="${searchInfo.publishName}" name="publishName" placeholder="搜索出版社" id="publishHome"/>
+                                         <input type="input-text" class="input-text" th:value="${searchInfo.storageName}" name="storageName" placeholder="搜索存放位置" id="storageLocation"/>
+                            <button type="submit"
+                                    class="layui-btn  layui-btn-success radius"><i
+                                        class="Hui-iconfont">&#xe665;</i> 搜索
+                            </button>
+                        </div>
+                    </div>
+
+                    <table class="layui-table text-c">
+                        <thead>
+                        <tr class="text-c">
+                            <th width="25"><input type="checkbox" name="" value=""/></th>
+                            <th width="25">序号</th>
+                                <th width="40">图书编号</th>
+                                <th width="40">图书名称</th>
+                                <th width="40">出版日期</th>
+                                <th width="40">出版社</th>
+                                <th width="40">存放位置</th>
+                                <th width="40">图书剩余数</th>
+                                <th width="40">添加日期</th>
+                                <th width="40">修改日期</th>
+                            <th width="100">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="text-c" th:if="${pageInfo.list.size() == 0}">
+                            <td colspan="15"><strong>暂无数据</strong></td>
+                        </tr>
+                        <tr class="text-c" th:each="book,count:${pageInfo.list}">
+                            <td><input type="checkbox" value="1" th:value="${book.id}"
+                                       name="id"/></td>
+                            <td th:text="${count.count}"></td>
+                                        <td th:text="${book.bookNumber}"></td>
+                                        <td th:text="${book.name}"></td>
+                                    <td th:text="${#temporals.format(book.publishDate, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                                        <td th:text="${book.publishName}"></td>
+                                        <td th:text="${book.storageName}"></td>
+                                        <td th:text="${book.totalNumber}"></td>
+                                    <td th:text="${#temporals.format(book.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                                    <td th:text="${#temporals.format(book.updateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                            <td class="td-manage">
+                                <a th:href="|@{/printController/printBookPdf}?bookId=${book.id}|" target="_blank"   class="label label-success radius">打印</a>
+
+                                <a title="编辑" href="javascript:;"
+                                   th:onclick="'javascript:layer_show(\'编辑\',\'/book/'+'book'+'/editBefore/'+${book.id}+'\',900,500)'"
+                                   class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6df;</i></a>
+                                <a title="删除" href="javascript:;"
+                                   th:onclick="'javascript:deleteById(\'/book/'+'book'+'/delete/'+${book.id}+'\')'"
+                                   class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6e2;</i></a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </fieldset>
+        </div>
+        <div th:include="_pagination :: page"></div>
+    </form>
+</div>
+<!--_footer 作为公共模版分离出去-->
+<div th:replace="_footer :: footerjs">
+</div>
+<!--/_footer 作为公共模版分离出去-->
+<script>
+    //日期时间范围选择
+    laydate.render({
+
+    });
+    lay('.timeSpace').each(function(){
+        laydate.render({
+            elem: this
+            ,type: 'datetime'
+            ,range: true //或 range: '~' 来自定义分割字符
+        });
+    });
+
+</script>
+</body>
+</html>
